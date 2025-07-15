@@ -17,7 +17,7 @@
           <el-header style="background: #fff; box-shadow: 0 2px 8px #f0f1f2; display: flex; align-items: center; justify-content: space-between; padding: 0 24px;">
             <div style="font-size: 18px; font-weight: bold;">个人博客后台管理系统</div>
             <div>
-              <el-button type="text" @click="$router.push('/login')">退出登录</el-button>
+              <el-button  @click="$router.push('/login')">退出登录</el-button>
             </div>
           </el-header>
           <el-main style="background: #f5f5f5;">
@@ -31,6 +31,7 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
+import { onMounted } from 'vue'
 const route = useRoute()
 const menuItems = [
   { name: '仪表盘', path: '/' },
@@ -42,6 +43,12 @@ const menuItems = [
   { name: '用户管理', path: '/users' },
   { name: '系统设置', path: '/settings' }
 ]
+
+onMounted(() => {
+  // localStorage.removeItem("blog_token");
+  console.log( "token:", localStorage.getItem("blog_token"));
+})
+
 </script>
 
 <style scoped>

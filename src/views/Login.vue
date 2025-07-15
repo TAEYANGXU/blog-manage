@@ -8,11 +8,11 @@
         </el-icon>
         <span class="logo-text">个人博客管理系统</span>
       </div>
-      
+
       <div class="tagline">
         <span>智能 · 高效 · 专业</span>
       </div>
-      
+
       <div class="floating-cubes">
         <div class="cube cube-1"></div>
         <div class="cube cube-2"></div>
@@ -21,7 +21,7 @@
         <div class="cube cube-5"></div>
         <div class="cube cube-6"></div>
       </div>
-      
+
       <div class="bottom-text">
         <!-- <h2>让企业管理更简单</h2> -->
         <h3>更高效</h3>
@@ -35,7 +35,7 @@
       <div class="login-form-container">
         <h2 class="login-title">欢迎登录</h2>
         <p class="login-subtitle">请输入您的账号和密码</p>
-        
+
         <el-form
           ref="loginFormRef"
           :model="loginForm"
@@ -50,7 +50,7 @@
               :prefix-icon="User"
             />
           </el-form-item>
-          
+
           <el-form-item prop="password">
             <el-input
               v-model="loginForm.password"
@@ -61,12 +61,12 @@
               show-password
             />
           </el-form-item>
-          
+
           <div class="form-options">
             <el-checkbox v-model="rememberPassword">记住密码</el-checkbox>
-            <el-button type="text" class="forgot-password">忘记密码?</el-button>
+            <el-button  class="forgot-password">忘记密码?</el-button>
           </div>
-          
+
           <el-button
             type="primary"
             size="large"
@@ -76,7 +76,7 @@
           >
             登录
           </el-button>
-          
+
           <!-- <div class="other-login">
             <span>其他登录方式</span>
             <div class="login-methods">
@@ -91,54 +91,66 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
-import { Monitor, User, Lock, ChatDotSquare } from '@element-plus/icons-vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive } from "vue";
+import { ElMessage, type FormInstance, type FormRules } from "element-plus";
+import { Monitor, User, Lock } from "@element-plus/icons-vue";
+import { useRouter } from "vue-router";
+import { login } from "@/api/login";
+import { useUserStore } from "@/store/user";
 
 interface LoginForm {
-  username: string
-  password: string
+  username: string;
+  password: string;
 }
 
-const router = useRouter()
+const router = useRouter();
+const userStore = useUserStore();
 
-const loginFormRef = ref<FormInstance>()
-const loginLoading = ref(false)
-const rememberPassword = ref(false)
+const loginFormRef = ref<FormInstance>();
+const loginLoading = ref(false);
+const rememberPassword = ref(false);
 
 const loginForm = reactive<LoginForm>({
-  username: '',
-  password: ''
-})
+  username: "",
+  password: "",
+});
 
 const loginRules: FormRules = {
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' }
-  ],
+  username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码长度至少6位', trigger: 'blur' }
-  ]
-}
+    { required: true, message: "请输入密码", trigger: "blur" },
+    { min: 6, message: "密码长度至少6位", trigger: "blur" },
+  ],
+};
 
 const handleLogin = async () => {
-  if (!loginFormRef.value) return
-  
+  if (!loginFormRef.value) return;
+
   try {
-    await loginFormRef.value.validate()
-    loginLoading.value = true
-    
-    // 模拟登录请求
-    setTimeout(() => {
-      loginLoading.value = false
-      router.push('/dashboard')
-      ElMessage.success('登录成功!')
-    }, 1500)
+    await loginFormRef.value.validate();
+    loginLoading.value = true;
+
+    loginForm.username = loginForm.username.trim();
+    loginForm.password = loginForm.password.trim();
+
+    const response = await login(loginForm.username, loginForm.password);
+    loginLoading.value = false;
+    if (response.code === 200) {
+      const { user, token } = (response.data as unknown) as { user: any; token: string };
+      console.log("User:", user);
+      console.log("Token:", token);
+      localStorage.setItem("blog_token", token);
+      console.log("Login response:", response.data);
+      userStore.setUser(user);
+      router.push("/");
+      ElMessage.success("登录成功!");
+    } else {
+      ElMessage.error(response.message || "登录失败，请重试");
+    }
   } catch (error) {
-    console.error('表单验证失败:', error)
+    console.error("表单验证失败:", error);
   }
-}
+};
 </script>
 
 <style scoped>
@@ -158,7 +170,8 @@ const handleLogin = async () => {
 
 .left-section {
   flex: 1;
-  background: url('https://ai-public.mastergo.com/ai/img_res/a47790954d8871408bcd9e2a0c7feca8.jpg') center/cover;
+  background: url("https://ai-public.mastergo.com/ai/img_res/a47790954d8871408bcd9e2a0c7feca8.jpg")
+    center/cover;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -167,13 +180,17 @@ const handleLogin = async () => {
 }
 
 .left-section::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, rgba(30, 144, 255, 0.8), rgba(0, 123, 255, 0.9));
+  background: linear-gradient(
+    45deg,
+    rgba(30, 144, 255, 0.8),
+    rgba(0, 123, 255, 0.9)
+  );
   z-index: 1;
 }
 
@@ -221,13 +238,17 @@ const handleLogin = async () => {
 }
 
 .cube::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -2px;
   left: -2px;
   right: -2px;
   bottom: -2px;
-  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.05)
+  );
   transform: translateZ(-1px);
 }
 
@@ -278,7 +299,8 @@ const handleLogin = async () => {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px) rotate(0deg);
   }
   50% {
@@ -356,7 +378,7 @@ const handleLogin = async () => {
 }
 
 .forgot-password {
-  color: #4A90E2;
+  color: #4a90e2;
   padding: 0;
 }
 
@@ -365,7 +387,7 @@ const handleLogin = async () => {
   height: 48px;
   font-size: 16px;
   font-weight: bold;
-  background: linear-gradient(135deg, #4A90E2, #357ABD);
+  background: linear-gradient(135deg, #4a90e2, #357abd);
   border: none;
   margin-bottom: 32px;
 }
@@ -395,8 +417,8 @@ const handleLogin = async () => {
 }
 
 .login-methods .el-button:hover {
-  border-color: #4A90E2;
-  color: #4A90E2;
+  border-color: #4a90e2;
+  color: #4a90e2;
 }
 
 /* 响应式设计 */
@@ -406,26 +428,26 @@ const handleLogin = async () => {
     height: 100vh;
     overflow: hidden;
   }
-  
+
   .left-section {
     height: 40vh;
     min-height: 250px;
   }
-  
+
   .right-section {
     height: 60vh;
     padding: 20px;
     overflow-y: auto;
   }
-  
+
   .bottom-text {
     margin-bottom: 20px;
   }
-  
+
   .bottom-text h2 {
     font-size: 24px;
   }
-  
+
   .bottom-text h3 {
     font-size: 20px;
   }

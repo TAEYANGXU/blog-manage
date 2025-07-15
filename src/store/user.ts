@@ -8,11 +8,11 @@ export const useUserStore = defineStore('user', () => {
   const userInfo = ref<any>(null)
 
   const setUser = (user: any) => {
-    name.value = user.name
-    token.value = user.token
+    // const { username, avatar ,role,id} = user;
+    name.value = user.username
+    // token.value = token
     userInfo.value = user
   }
-
   const clearUser = () => {
     name.value = ''
     token.value = ''
