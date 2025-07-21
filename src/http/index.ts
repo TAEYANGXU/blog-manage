@@ -4,6 +4,7 @@ import axios, {
   AxiosResponse, 
   InternalAxiosRequestConfig 
 } from 'axios';
+import { ElMessage } from 'element-plus';
 
 // 定义响应数据结构
 export interface ApiResponse<T = any> {
@@ -130,16 +131,16 @@ class HttpClient {
         this.handleUnauthorized();
         break;
       case HttpStatus.FORBIDDEN:
-        this.showMessage(`访问被拒绝: ${data.message}`, 'error');
+        this.showMessage(`访问被拒绝: ${data.message || '无权限访问'}`, 'error');
         break;
       default:
-        this.showMessage(data.message || '请求失败', 'error');
+        this.showMessage(data.message || '操作失败，请稍后重试', 'error');
     }
   }
 
   // 处理HTTP错误
   private handleError(error: any): void {
-    let message = '请求失败';
+    let message = '网络请求失败';
 
     if (error.response) {
       // 服务器响应了错误状态码
@@ -150,13 +151,13 @@ class HttpClient {
           this.handleUnauthorized();
           return;
         case HttpStatus.FORBIDDEN:
-          message = '访问被拒绝';
+          message = data?.message || '您没有权限执行此操作';
           break;
         case HttpStatus.NOT_FOUND:
-          message = '请求的资源不存在';
+          message = data?.message || '请求的资源不存在';
           break;
         case HttpStatus.SERVER_ERROR:
-          message = '服务器内部错误';
+          message = data?.message || '服务器内部错误，请稍后重试';
           break;
         default:
           message = data?.message || `请求失败 (${status})`;
@@ -184,8 +185,13 @@ class HttpClient {
 
   // 显示消息提示
   private showMessage(message: string, type: 'success' | 'error' | 'warning' = 'error'): void {
-    // 这里可以集成你的消息提示组件
-    console.log(`[${type.toUpperCase()}] ${message}`);
+    ElMessage({
+      message,
+      type,
+      duration: 3000,
+      showClose: true,
+      grouping: true
+    });
   }
 
   // GET 请求
