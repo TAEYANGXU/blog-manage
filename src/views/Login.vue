@@ -64,7 +64,7 @@
 
           <div class="form-options">
             <el-checkbox v-model="rememberPassword">记住密码</el-checkbox>
-            <el-button  class="forgot-password">忘记密码?</el-button>
+            <el-button type="text" class="forgot-password">忘记密码?</el-button>
           </div>
 
           <el-button
@@ -136,7 +136,10 @@ const handleLogin = async () => {
     const response = await login(loginForm.username, loginForm.password);
     loginLoading.value = false;
     if (response.code === 200) {
-      const { user, token } = (response.data as unknown) as { user: any; token: string };
+      const { user, token } = response.data as unknown as {
+        user: any;
+        token: string;
+      };
       console.log("User:", user);
       console.log("Token:", token);
       localStorage.setItem("blog_token", token);

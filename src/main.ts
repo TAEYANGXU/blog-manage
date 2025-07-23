@@ -9,6 +9,8 @@ import "element-plus/dist/index.css";
 import './style.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
+console.log('当前环境:', import.meta.env.PROD ? '生产环境' : '开发环境');
+
 const app = createApp(App)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)

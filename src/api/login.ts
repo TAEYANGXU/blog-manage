@@ -6,7 +6,7 @@ export interface LoginResponseData {
 }
 
 export const login = async (username: string, password: string) => {
-  return httpClient.post<ApiResponse<LoginResponseData>>("/api/login", {
+  return httpClient.post<ApiResponse<LoginResponseData>>("/login", {
     username,
     password,
   });

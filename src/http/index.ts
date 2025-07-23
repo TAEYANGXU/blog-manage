@@ -1,10 +1,10 @@
-import axios, { 
-  AxiosInstance, 
-  AxiosRequestConfig, 
-  AxiosResponse, 
-  InternalAxiosRequestConfig 
-} from 'axios';
-import { ElMessage } from 'element-plus';
+import axios, {
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
+import { ElMessage } from "element-plus";
 
 // 定义响应数据结构
 export interface ApiResponse<T = any> {
@@ -33,12 +33,14 @@ class HttpClient {
   private instance: AxiosInstance;
   private loadingCount = 0;
 
-  constructor(baseURL: string = '/api') {
+  constructor() {
     this.instance = axios.create({
-      baseURL,
+      baseURL: import.meta.env.PROD
+        ? "http://124.70.211.197/api" // 强制HTTPS
+        : "/api",
       timeout: 10000,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
@@ -63,7 +65,10 @@ class HttpClient {
         }
 
         // 请求日志
-        console.log(`[REQUEST] ${config.method?.toUpperCase()} ${config.url}`, config.data);
+        console.log(
+          `[REQUEST] ${config.method?.toUpperCase()} ${config.url}`,
+          config.data
+        );
 
         return config;
       },
@@ -91,7 +96,7 @@ class HttpClient {
       },
       (error) => {
         this.hideLoading();
-        
+
         // 跳过错误处理
         if (error.config?.skipErrorHandler) {
           return Promise.reject(error);
@@ -105,14 +110,14 @@ class HttpClient {
 
   // 获取token
   private getToken(): string | null {
-    return localStorage.getItem('token') || sessionStorage.getItem('token');
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
   }
 
   // 显示加载状态
   private showLoading(): void {
     this.loadingCount++;
     // 这里可以集成你的loading组件
-    console.log('Loading...');
+    console.log("Loading...");
   }
 
   // 隐藏加载状态
@@ -120,7 +125,7 @@ class HttpClient {
     this.loadingCount--;
     if (this.loadingCount <= 0) {
       this.loadingCount = 0;
-      console.log('Loading finished');
+      console.log("Loading finished");
     }
   }
 
@@ -131,122 +136,165 @@ class HttpClient {
         this.handleUnauthorized();
         break;
       case HttpStatus.FORBIDDEN:
-        this.showMessage(`访问被拒绝: ${data.message || '无权限访问'}`, 'error');
+        this.showMessage(
+          `访问被拒绝: ${data.message || "无权限访问"}`,
+          "error"
+        );
         break;
       default:
-        this.showMessage(data.message || '操作失败，请稍后重试', 'error');
+        this.showMessage(data.message || "操作失败，请稍后重试", "error");
     }
   }
 
   // 处理HTTP错误
   private handleError(error: any): void {
-    let message = '网络请求失败';
+    let message = "网络请求失败";
 
     if (error.response) {
       // 服务器响应了错误状态码
       const { status, data } = error.response;
-      
+
       switch (status) {
         case HttpStatus.UNAUTHORIZED:
           this.handleUnauthorized();
           return;
         case HttpStatus.FORBIDDEN:
-          message = data?.message || '您没有权限执行此操作';
+          message = data?.message || "您没有权限执行此操作";
           break;
         case HttpStatus.NOT_FOUND:
-          message = data?.message || '请求的资源不存在';
+          message = data?.message || "请求的资源不存在";
           break;
         case HttpStatus.SERVER_ERROR:
-          message = data?.message || '服务器内部错误，请稍后重试';
+          message = data?.message || "服务器内部错误，请稍后重试";
           break;
         default:
           message = data?.message || `请求失败 (${status})`;
       }
     } else if (error.request) {
       // 请求已发出但没有收到响应
-      message = '网络连接异常，请检查网络设置';
+      message = "网络连接异常，请检查网络设置";
     } else {
       // 其他错误
-      message = error.message || '请求配置错误';
+      message = error.message || "请求配置错误";
     }
 
-    this.showMessage(message, 'error');
+    this.showMessage(message, "error");
   }
 
   // 处理未授权
   private handleUnauthorized(): void {
-    this.showMessage('登录已过期，请重新登录', 'error');
+    this.showMessage("登录已过期，请重新登录", "error");
     // 清除token
-    localStorage.removeItem('token');
-    sessionStorage.removeItem('token');
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
     // 跳转到登录页面
-    window.location.href = '/login';
+    window.location.href = "/login";
   }
 
   // 显示消息提示
-  private showMessage(message: string, type: 'success' | 'error' | 'warning' = 'error'): void {
+  private showMessage(
+    message: string,
+    type: "success" | "error" | "warning" = "error"
+  ): void {
     ElMessage({
       message,
       type,
       duration: 3000,
       showClose: true,
-      grouping: true
+      grouping: true,
     });
   }
 
   // GET 请求
   get<T = any>(url: string, config?: RequestConfig): Promise<ApiResponse<T>> {
-    return this.instance.get<ApiResponse<T>>(url, config).then(res => res.data);
+    return this.instance
+      .get<ApiResponse<T>>(url, config)
+      .then((res) => res.data);
   }
 
   // POST 请求
-post<T = any>(url: string, data?: any, config?: RequestConfig): Promise<ApiResponse<T>> {
-  return this.instance.post<ApiResponse<T>>(url, data, config).then(res => res.data);
-}
+  post<T = any>(
+    url: string,
+    data?: any,
+    config?: RequestConfig
+  ): Promise<ApiResponse<T>> {
+    return this.instance
+      .post<ApiResponse<T>>(url, data, config)
+      .then((res) => res.data);
+  }
   // PUT 请求
-  put<T = any>(url: string, data?: any, config?: RequestConfig): Promise<ApiResponse<T>> {
-    return this.instance.put<ApiResponse<T>>(url, data, config).then(res => res.data);
+  put<T = any>(
+    url: string,
+    data?: any,
+    config?: RequestConfig
+  ): Promise<ApiResponse<T>> {
+    return this.instance
+      .put<ApiResponse<T>>(url, data, config)
+      .then((res) => res.data);
   }
 
   // DELETE 请求
-  delete<T = any>(url: string, config?: RequestConfig): Promise<ApiResponse<T>> {
-    return this.instance.delete<ApiResponse<T>>(url, config).then(res => res.data);
+  delete<T = any>(
+    url: string,
+    config?: RequestConfig
+  ): Promise<ApiResponse<T>> {
+    return this.instance
+      .delete<ApiResponse<T>>(url, config)
+      .then((res) => res.data);
   }
 
   // PATCH 请求
-  patch<T = any>(url: string, data?: any, config?: RequestConfig): Promise<ApiResponse<T>> {
-    return this.instance.patch<ApiResponse<T>>(url, data, config).then(res => res.data);
+  patch<T = any>(
+    url: string,
+    data?: any,
+    config?: RequestConfig
+  ): Promise<ApiResponse<T>> {
+    return this.instance
+      .patch<ApiResponse<T>>(url, data, config)
+      .then((res) => res.data);
   }
 
   // 上传文件
-  upload<T = any>(url: string, file: File, config?: RequestConfig): Promise<ApiResponse<T>> {
+  upload<T = any>(
+    url: string,
+    file: File,
+    config?: RequestConfig
+  ): Promise<ApiResponse<T>> {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
-    return this.instance.post<ApiResponse<T>>(url, formData, {
-      ...config,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    }).then(res => res.data);
+    return this.instance
+      .post<ApiResponse<T>>(url, formData, {
+        ...config,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((res) => res.data);
   }
 
   // 下载文件
-  download(url: string, filename?: string, config?: RequestConfig): Promise<void> {
-    return this.instance.get(url, {
-      ...config,
-      responseType: 'blob',
-    }).then(response => {
-      const blob = new Blob([response.data]);
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = filename || 'download';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(downloadUrl);
-    });
+  download(
+    url: string,
+    filename?: string,
+    config?: RequestConfig
+  ): Promise<void> {
+    return this.instance
+      .get(url, {
+        ...config,
+        responseType: "blob",
+      })
+      .then((response) => {
+        const blob = new Blob([response.data]);
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download = filename || "download";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+      });
   }
 
   // 批量请求
@@ -270,22 +318,22 @@ export { HttpClient, httpClient as default };
 // export const api = {
 //   // 用户相关
 //   user: {
-//     login: (data: { username: string; password: string }) => 
+//     login: (data: { username: string; password: string }) =>
 //       httpClient.post<{ token: string; userInfo: any }>('/auth/login', data),
-    
-//     getUserInfo: () => 
+
+//     getUserInfo: () =>
 //       httpClient.get<{ id: number; name: string; email: string }>('/user/info'),
-    
-//     updateProfile: (data: { name: string; email: string }) => 
+
+//     updateProfile: (data: { name: string; email: string }) =>
 //       httpClient.put<boolean>('/user/profile', data),
 //   },
 
 //   // 文件相关
 //   file: {
-//     upload: (file: File) => 
+//     upload: (file: File) =>
 //       httpClient.upload<{ url: string; filename: string }>('/file/upload', file),
-    
-//     download: (fileId: string, filename?: string) => 
+
+//     download: (fileId: string, filename?: string) =>
 //       httpClient.download(`/file/download/${fileId}`, filename),
 //   },
 // };

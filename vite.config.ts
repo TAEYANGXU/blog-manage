@@ -15,10 +15,11 @@ export default defineConfig({
     open: true,
     proxy: {
       "/api": {
-        target: "http://localhost:8080", // 后端服务地址
+        target: "http://124.70.211.197/api", // 后端服务地址
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },
   },
+  base: "/", // 设置基础路径
 });
