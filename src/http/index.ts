@@ -6,6 +6,10 @@ import axios, {
 } from "axios";
 import { ElMessage } from "element-plus";
 
+const baseURL = import.meta.env.PROD
+  ? "http://124.70.211.197/api"
+  : "/api";
+
 // 定义响应数据结构
 export interface ApiResponse<T = any> {
   code: number;
@@ -35,9 +39,7 @@ class HttpClient {
 
   constructor() {
     this.instance = axios.create({
-      baseURL: import.meta.env.PROD
-        ? "http://124.70.211.197/api" // 强制HTTPS
-        : "/api",
+      baseURL: baseURL,
       timeout: 10000,
       headers: {
         "Content-Type": "application/json",
@@ -110,7 +112,7 @@ class HttpClient {
 
   // 获取token
   private getToken(): string | null {
-    return localStorage.getItem("token") || sessionStorage.getItem("token");
+    return localStorage.getItem("blog_token") || sessionStorage.getItem("blog_token");
   }
 
   // 显示加载状态

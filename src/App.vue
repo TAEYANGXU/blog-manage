@@ -47,7 +47,7 @@
               个人博客后台管理系统
             </div>
             <div>
-              <el-button @click="handleLogout">退出登录</el-button>
+              <el-button @click="handleLogout">退出</el-button>
             </div>
           </el-header>
           <el-main style="background: #f5f5f5">

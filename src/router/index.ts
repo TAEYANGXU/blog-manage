@@ -13,10 +13,16 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: "/",
-    name: "Dashboard",
-    component: () => import("@/views/Dashboard.vue"),
-    meta: { requiresAuth: true, title: "首页", icon: "SetUp" },
+    redirect: "/articles",
+    component: () => import("@/views/ArticleManage.vue"),
+    meta: { requiresAuth: true },
     children: [
+      // {
+      //   path: "dashboard",
+      //   name: "Dashboard",
+      //   component: () => import("@/views/Dashboard.vue"),
+      //   meta: { requiresAuth: true, title: "首页", icon: "SetUp" },
+      // },
       {
         path: "articles",
         name: "ArticleManage",

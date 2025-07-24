@@ -126,21 +126,13 @@ const resolvePath = (routePath: string): string => {
     return routePath;
   }
 
-  // 确保basePath正确处理
-  let base = props.basePath || "";
-
-  // 如果base本身不是绝对路径，则添加 /
-  if (!base.startsWith("/")) {
-    base = "/" + base;
+  // 如果是根路由的子路由，直接返回 /${routePath}
+  if (props.basePath === "/") {
+    return `/${routePath}`;
   }
 
-  // 如果base不以/结尾但routePath不以/开头，则添加/
-  if (!base.endsWith("/") && !routePath.startsWith("/")) {
-    base = base + "/";
-  }
-
-  // 返回完整路径
-  return base + routePath;
+  // 对于其他情况，返回 basePath
+  return props.basePath || routePath;
 };
 </script>
 
