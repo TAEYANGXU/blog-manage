@@ -106,8 +106,8 @@ const menuItems = computed(() => {
 });
 
 onMounted(() => {
-  // localStorage.removeItem("blog_token");
-  console.log("token:", localStorage.getItem("blog_token"));
+  // 初始化时的必要操作
+  // localStorage.setItem("blog_token", "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc1MzE3NTkxOSwiZXhwIjoxNzUzMjYyMzE5fQ.Yn17wLE4NHrdoya0FK6vtCWVPUkz47jhs-yPHlYg9yk");
 });
 </script>
 

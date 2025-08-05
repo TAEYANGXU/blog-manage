@@ -1,8 +1,33 @@
 <template>
   <div>
     <h2>标签管理</h2>
-    <p>这里是标签管理页面。</p>
+    <el-table :data="tagList" style="width: 100%" v-loading="loading">
+      <el-table-column prop="id" label="ID" width="80" />
+      <el-table-column prop="name" label="名称" />
+      <el-table-column prop="createTime" label="创建时间" />
+    </el-table>
   </div>
 </template>
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { getTagList, type Tag } from '@/api/tag'
+
+const tagList = ref<Tag[]>([])
+const loading = ref(false)
+
+const fetchTags = async () => {
+  loading.value = true
+  try {
+    const res = await getTagList()
+    if (res.code === 200 && res.data) {
+      tagList.value = res.data.list
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchTags()
+})
 </script>
