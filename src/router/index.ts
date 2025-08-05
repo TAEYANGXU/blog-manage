@@ -14,7 +14,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/",
     redirect: "/articles",
-    component: () => import("@/views/ArticleManage.vue"),
+    // component: () => import("@/views/ArticleManage.vue"),
     meta: { requiresAuth: true },
     children: [
       // {
@@ -75,13 +75,18 @@ const router = createRouter({
 });
 
 // 全局前置守卫
-router.beforeEach(async (to, _from, next) => {
+router.beforeEach(async (to, from, next) => {
+  console.log('Route change:', { from: from.path, to: to.path });
   const token = localStorage.getItem("blog_token");
 
   // 如果要访问登录页
   if (to.path === "/login") {
     if (token) {
       // 已登录用户重定向到首页
+      if (from.path === "/") {
+        next(false);
+        return;
+      }
       next("/");
       return;
     }
@@ -101,7 +106,6 @@ router.beforeEach(async (to, _from, next) => {
     });
     return;
   }
-
   next();
 });
 

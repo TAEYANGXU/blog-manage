@@ -187,8 +187,8 @@ class HttpClient {
   private handleUnauthorized(): void {
     this.showMessage("登录已过期，请重新登录", "error");
     // 清除token
-    localStorage.removeItem("token");
-    sessionStorage.removeItem("token");
+    localStorage.removeItem("blog_token");
+    sessionStorage.removeItem("blog_token");
     // 跳转到登录页面
     window.location.href = "/login";
   }
